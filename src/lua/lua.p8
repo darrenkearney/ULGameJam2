@@ -11,6 +11,10 @@ deltatime = 0
 game_started = false
 ended_game = false
 
+textlabels = {}
+textlabels['menu'] = {}
+textlabels['end'] = {"game over","wins!","score ","press button for menu"};
+
 function update_delta_time()
     local time = time()
     deltatime = time - lasttime
@@ -274,12 +278,11 @@ function enddrawloop()
     else
         winner = player2
     end
-    textlabels={"game over","wins!","score".." "..winner.score,"press button for menu"};
-    print(textlabels[1],hcenter(textlabels[1]),vcenter(textlabels[1])-12,rnd(3)+7)
-    spr(winner.sprite,hcenter(textlabels[2])-6,vcenter(textlabels[2]))
-    print(textlabels[2],hcenter(textlabels[2])+6,vcenter(textlabels[2]),rnd(3)+7)
-    print(textlabels[3],hcenter(textlabels[3]),vcenter(textlabels[3])+12,11)
-    print(textlabels[4],hcenter(textlabels[4]),vcenter(textlabels[3])+24,12)
+    print(textlabels['end'][1],hcenter(textlabels['end'][1]),vcenter(textlabels['end'][1])-12,rnd(3)+7)
+    spr(winner.sprite,hcenter(textlabels['end'][2])-6,vcenter(textlabels['end'][2]))
+    print(textlabels['end'][2],hcenter(textlabels['end'][2])+6,vcenter(textlabels['end'][2]),rnd(3)+7)
+    print(textlabels['end'][3]..winner.score,hcenter(textlabels['end'][3]..winner.score),vcenter(textlabels['end'][3]..winner.score)+12,11)
+    print(textlabels['end'][4],hcenter(textlabels['end'][4]),vcenter(textlabels['end'][3])+24,12)
     color(7) -- reset color to white
 end
 
