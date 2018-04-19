@@ -12,8 +12,10 @@ game_started = false
 ended_game = false
 
 textlabels = {}
-textlabels['menu'] = {}
-textlabels['end'] = {"game over","wins!","score ","press button for menu"};
+textlabels['menu'] = {'~ ul gamejam 2 ~','theme: simplicity','press button to start','++ credits ++','dave\ndarren\nbrian\njono'}
+textlabels['game'] = {'score: ','player1 ','player2 '}
+textlabels['end'] = {"game over","wins!","score ","press button for menu"}
+textlabels['symbols'] = {'~','#','@','-','+','^','!','|','='}
 
 function update_delta_time()
     local time = time()
@@ -125,10 +127,13 @@ function menudrawloop()
     cls()
     spr(64, 36, 36, 56, 28)
     color(2)
-    print('~ ul gamejam 2 ~');
-    print('theme: simplicity');
-    print('\n++ credits ++\n')
-    print('dave\ndarren\nbrian\njono')
+    -- decor = textlabels['symbols'][flr(rnd(#textlabels['symbols']))+1] -- fun little doodad
+    decor = ""
+    print(decor..textlabels['menu'][1]..decor,hcenter(decor..textlabels['menu'][1]..decor), 8, 3)
+    print(decor..textlabels['menu'][2]..decor,hcenter(decor..textlabels['menu'][2]..decor), 16, 3)
+    print(textlabels['menu'][3],hcenter(textlabels['menu'][3]), 78, 2)
+    print(textlabels['menu'][4],hcenter(textlabels['menu'][4]), 84, 2)
+    print(textlabels['menu'][5],hcenter(textlabels['menu'][4]), 92, 2)
     color(0)
 end
 
@@ -252,6 +257,9 @@ function gamedrawloop()
     spr(player1.sprite,player1.x - 4,player1.y - 4)
     spr(player2.sprite,player2.x - 4,player2.y - 4)
     map(0,0,0,0,16,14)
+    print(textlabels['game'][1], 2, 2, 9)
+    print(player1.score, 32, 2, 10)
+    print(player2.score, 62, 2, 12)
 end
 
 --------------------------------------------------------------
