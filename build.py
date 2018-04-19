@@ -11,28 +11,7 @@ def main():
     chunks = get_chunks_from_includes( includes )
     output = prepare_output( chunks )
     write_output_to_file( output, 'bin/jamthegame.p8' )
-
-def write_output_to_file( output, filepath = 'bin/build.p8' ):
-    # Write output to file
-    with open( filepath , 'w' ) as build:
-        build.write( output )
-
     print("Done.")
-
-
-def get_includes():
-    print("Reading includes file")
-    with open('includes', 'r') as f:
-        read_data = f.read()
-
-    includes = {}
-
-    for i in read_data.split():
-        k=i.split('=')[0]
-        v=i.split('=')[1]
-        includes[k] = v
-
-    return includes
 
 
 def get_chunks_from_includes( includes = {} ):
@@ -57,18 +36,33 @@ def get_chunks_from_includes( includes = {} ):
             chunks['__pre__'] = "{}".format(preamble_data)
 
         if filepath == includes['__lua__']:
-            chunks['__lua__'] = pico8_get_chunk_from_file( "__lua__", filepath ) 
+            chunks['__lua__'] = get_chunk_from_file( "__lua__", filepath ) 
 
         if filepath == includes['__gfx__']:
-            chunks['__gfx__'] = pico8_get_chunk_from_file( "__gfx__", filepath )
-            chunks['__gff__'] = pico8_get_chunk_from_file( "__gff__", filepath )
-            chunks['__map__'] = pico8_get_chunk_from_file( "__map__", filepath )
+            chunks['__gfx__'] = get_chunk_from_file( "__gfx__", filepath )
+            chunks['__gff__'] = get_chunk_from_file( "__gff__", filepath )
+            chunks['__map__'] = get_chunk_from_file( "__map__", filepath )
      
         if filepath == includes['__sfx__']:
-            chunks['__sfx__'] = pico8_get_chunk_from_file( "__sfx__", filepath )
-            chunks['__music__'] = pico8_get_chunk_from_file( "__music__", filepath )
+            chunks['__sfx__'] = get_chunk_from_file( "__sfx__", filepath )
+            chunks['__music__'] = get_chunk_from_file( "__music__", filepath )
 
     return chunks
+
+
+def get_includes():
+    print("Reading includes file")
+    with open('includes', 'r') as f:
+        read_data = f.read()
+
+    includes = {}
+
+    for i in read_data.split():
+        k=i.split('=')[0]
+        v=i.split('=')[1]
+        includes[k] = v
+
+    return includes
 
 
 def prepare_output(chunks):
@@ -88,9 +82,7 @@ def prepare_output(chunks):
     return output
 
 
-
-
-def pico8_get_chunk_from_file( label, filepath ):
+def get_chunk_from_file( label, filepath ):
     
     # Vars
     chunk = ""
@@ -121,5 +113,11 @@ def pico8_get_chunk_from_file( label, filepath ):
         print("    - No chunk found for '{}' in '{}'".format(label, filepath))
 
     return chunk
+
+def write_output_to_file( output, filepath = 'bin/build.p8' ):
+    # Write output to file
+    with open( filepath , 'w' ) as build:
+        build.write( output )
+
 
 main()
