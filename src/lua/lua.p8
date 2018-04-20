@@ -208,9 +208,9 @@ function game_start()
     player1.score = 0
     player2.score = 0
     player1.x = flr(rnd(right_parameter - left_parameter) + left_parameter)
-    player1.y = flr(rnd (bottom_parameter - top_parameter) + top_parameter)
+    player1.y = flr(rnd(bottom_parameter - top_parameter) + top_parameter)
     player2.x = flr(rnd(right_parameter - left_parameter) + left_parameter)
-    player2.y = flr(rnd (bottom_parameter - top_parameter) + top_parameter)
+    player2.y = flr(rnd(bottom_parameter - top_parameter) + top_parameter)
     game_started = true
 end
 
@@ -263,16 +263,25 @@ function gameloop()
     if not game_started then
         game_start()
     end
-    player_movement(player1)
-    -- player 1 movement
 
-    local x, y = jam_hash_func(player1)
-    if jam[x] and jam[x][y] ~= "empty" then
-        play_rate_limited_sound(eating, 1, 0.3)
-        player1.score += jam_score
-        jam[x][y] = "empty"
+    -- player 1 movement
+    player_movement(player1)
+
+    local mouth_size=1 -- use decimal points 0.1->whatever
+    local x, y = 0
+
+    for i=mouth_size*-1,mouth_size,0.2 do 
+	local vector = {}
+	vector.x = player1.x + i
+	vector.y = player1.y + i
+        x, y = jam_hash_func(vector)
+
+        if jam[x] and jam[x][y] ~= "empty" then
+            play_rate_limited_sound(eating, 1, 0.3)
+            player1.score += jam_score
+            jam[x][y] = "empty"
+        end
     end
-    
     -- player 2 movement
     player_movement(player2)
 
@@ -293,6 +302,18 @@ function gamedrawloop()
     print(textlabels['game'][1], 2, 2, 9)
     print(player1.score, 32, 2, 10)
     print(player2.score, 62, 2, 12)
+
+    -- debug jam
+--    local debug_jam=''
+--    for x=1,#jam do
+--	debug_jam = debug_jam.."jam["..x.."]: "
+--	for y=1,#jam[x] do
+--	    if (y~=1) then debug_jam=debug_jam..", "..jam[x][y] end
+--        end
+--        debug_jam=debug_jam.."\n"
+--    end
+--    print(debug_jam, 3, 3, 5)
+--    print(debug_jam, 2, 2, 7)
 end
 
 --------------------------------------------------------------
