@@ -15,7 +15,7 @@ game_started = false
 ended_game = false
 
 textlabels = {}
-textlabels['menu'] = {'~ ul gamejam 2 ~','theme: simplicity','press button to start','++ credits ++','dave\ndarren\nbrian\njono'}
+textlabels['menu'] = {'~ ul gamejam 2 ~','theme: simplicity','press z/x/n/m to start','++ credits ++','dave\ndarren\nbrian\njono', ' e\ns f\n d','  \148\n\139  \145\n  \131'}
 textlabels['game'] = {'score: ','player1 ','player2 '}
 textlabels['end'] = {"game over","wins!","score ","press button for menu"}
 textlabels['symbols'] = {'~','#','@','-','+','^','!','|','='}
@@ -112,7 +112,9 @@ function draw_jam()
     end
 end
 
-
+--------------------------------------------------------------
+-- main menu screen setup
+--------------------------------------------------------------
 function menu_setup()
     player1.x=24
     player1.y=60
@@ -122,8 +124,6 @@ function menu_setup()
     before_menu_setup = false
     after_menu_setup = true
 end
-
-
 
 --------------------------------------------------------------
 -- main menu loop
@@ -160,6 +160,8 @@ function menudrawloop()
     print(textlabels['menu'][3],hcenter(textlabels['menu'][3]), 78, 2)
     print(textlabels['menu'][4],hcenter(textlabels['menu'][4]), 84, 2)
     print(textlabels['menu'][5],hcenter(textlabels['menu'][4]), 92, 2)
+    print(textlabels['menu'][6],4,100,12)
+    print(textlabels['menu'][7],102,100,10)
     color(0)
 end
 
@@ -262,23 +264,8 @@ function gameloop()
     if not game_started then
         game_start()
     end
-    --player 1 movement
-    if (btn(0,0) and player1.x > left_parameter) then
-         player1.x = clamp_move(player1.x, -player1.speed,left_parameter)
-        player1.sprite = 4
-    end
-    if (btn(1,0) and player1.x < right_parameter) then
-        player1.x = clamp_move(player1.x, player1.speed, right_parameter)
-        player1.sprite = 2
-    end
-    if (btn(2,0) and player1.y > top_parameter) then
-        player1.y = clamp_move(player1.y, -player1.speed, top_parameter)
-        player1.sprite = 1
-    end
-    if (btn(3,0) and player1.y < bottom_parameter) then
-        player1.y = clamp_move(player1.y, player1.speed, bottom_parameter)
-        player1.sprite = 3
-    end
+    player_movement(player1)
+    -- player 1 movement
 
     local x, y = jam_hash_func(player1)
     if jam[x] and jam[x][y] ~= "empty" then
@@ -287,24 +274,8 @@ function gameloop()
         jam[x][y] = "empty"
     end
     
-    --player 2 movement
-    
-    if (btn(0,1) and player2.x > left_parameter) then
-        player2.x = clamp_move(player2.x, -player2.speed,left_parameter)
-        player2.sprite = 8
-    end
-    if (btn(1,1) and player2.x < right_parameter) then
-        player2.x = clamp_move(player2.x, player2.speed, right_parameter)
-        player2.sprite = 6
-    end
-    if (btn(2,1) and player2.y > top_parameter) then
-        player2.y = clamp_move(player2.y, -player2.speed, top_parameter)
-        player2.sprite = 5
-    end
-    if (btn(3,1) and player2.y < bottom_parameter) then
-        player2.y = clamp_move(player2.y, player2.speed, bottom_parameter)
-        player2.sprite = 7
-    end
+    -- player 2 movement
+    player_movement(player2)
 
     x, y = jam_hash_func(player2)
     if jam[x] and jam[x][y] ~= "empty" then
