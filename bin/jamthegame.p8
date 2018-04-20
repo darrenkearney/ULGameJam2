@@ -9,8 +9,16 @@ __lua__
 mode = "menu"
 lasttime = time()
 deltatime = 0
+before_menu_setup = true -- action hook
+after_menu_setup = false -- action hook
 game_started = false
 ended_game = false
+
+textlabels = {}
+textlabels['menu'] = {'~ ul gamejam 2 ~','theme: simplicity','press button to start','++ credits ++','dave\ndarren\nbrian\njono'}
+textlabels['game'] = {'score: ','player1 ','player2 '}
+textlabels['end'] = {"game over","wins!","score ","press button for menu"}
+textlabels['symbols'] = {'~','#','@','-','+','^','!','|','='}
 
 function update_delta_time()
     local time = time()
@@ -104,10 +112,27 @@ function draw_jam()
     end
 end
 
+
+function menu_setup()
+    player1.x=24
+    player1.y=60
+    player2.x=100
+    player2.y=60
+    -- update global hooks
+    before_menu_setup = false
+    after_menu_setup = true
+end
+
+
+
 --------------------------------------------------------------
 -- main menu loop
 --------------------------------------------------------------
-function menuloop() 
+function menuloop()
+
+    if (before_menu_setup) then
+        menu_setup()
+    end
     if not jam_populated then
         music(5, 300, 3)
         populate_jam()
@@ -116,16 +141,25 @@ function menuloop()
         mode = "game"
         game_started = false
     end
+    player_movement(player1)
+    player_movement(player2)
 end
 
 function menudrawloop()
     cls()
+    -- player sprites for onboarding
+    spr(player1.sprite,player1.x - 4,player1.y - 4)
+    spr(player2.sprite,player2.x - 4,player2.y - 4)
+    -- game logo
     spr(64, 36, 36, 56, 28)
     color(2)
-    print('~ ul gamejam 2 ~');
-    print('theme: simplicity');
-    print('\n++ credits ++\n')
-    print('dave\ndarren\nbrian\njono')
+    -- decor = textlabels['symbols'][flr(rnd(#textlabels['symbols']))+1] -- fun little doodad
+    decor = ""
+    print(decor..textlabels['menu'][1]..decor,hcenter(decor..textlabels['menu'][1]..decor), 8, 3)
+    print(decor..textlabels['menu'][2]..decor,hcenter(decor..textlabels['menu'][2]..decor), 16, 3)
+    print(textlabels['menu'][3],hcenter(textlabels['menu'][3]), 78, 2)
+    print(textlabels['menu'][4],hcenter(textlabels['menu'][4]), 84, 2)
+    print(textlabels['menu'][5],hcenter(textlabels['menu'][4]), 92, 2)
     color(0)
 end
 
@@ -138,6 +172,11 @@ player1.x = 1
 player1.y = 1
 player1.sprite = 1
 player1.score = 0
+player1.movesprites={}
+player1.movesprites['left']=4
+player1.movesprites['right']=2
+player1.movesprites['up']=1
+player1.movesprites['down']=3
 
 player2 = {} 
 player2.speed = 5
@@ -145,6 +184,11 @@ player2.x = 10
 player2.y = 10
 player2.sprite = 5
 player2.score = 0
+player2.movesprites={}
+player2.movesprites['left']=8
+player2.movesprites['right']=6
+player2.movesprites['up']=5
+player2.movesprites['down']=7
 
 top_parameter = 36
 bottom_parameter = 100
@@ -185,6 +229,33 @@ function clamp_move(pos, speed, param)
         end
     end
     return pos
+end
+
+function player_movement(player)
+    local movesprites={}
+    if (player == player1) then
+        controller = 0
+    elseif (player == player2) then
+        controller = 1
+    end
+    --generic player movement
+    if (btn(0,controller) and player.x > left_parameter) then
+        player.x = clamp_move(player.x, -player.speed,left_parameter)
+        player.sprite = player.movesprites['left']
+    end
+    if (btn(1,controller) and player.x < right_parameter) then
+        player.x = clamp_move(player.x, player.speed, right_parameter)
+        player.sprite = player.movesprites['right']
+    end
+    if (btn(2,controller) and player.y > top_parameter) then
+        player.y = clamp_move(player.y, -player.speed, top_parameter)
+        player.sprite = player.movesprites['up']
+    end
+    if (btn(3,controller) and player.y < bottom_parameter) then
+        player.y = clamp_move(player.y, player.speed, bottom_parameter)
+        player.sprite = player.movesprites['down']
+    end
+
 end
 
 function gameloop()
@@ -234,7 +305,7 @@ function gameloop()
         player2.y = clamp_move(player2.y, player2.speed, bottom_parameter)
         player2.sprite = 7
     end
-    
+
     x, y = jam_hash_func(player2)
     if jam[x] and jam[x][y] ~= "empty" then
         play_rate_limited_sound(eating, 2, 0.3)
@@ -249,6 +320,9 @@ function gamedrawloop()
     spr(player1.sprite,player1.x - 4,player1.y - 4)
     spr(player2.sprite,player2.x - 4,player2.y - 4)
     map(0,0,0,0,16,14)
+    print(textlabels['game'][1], 2, 2, 9)
+    print(player1.score, 32, 2, 10)
+    print(player2.score, 62, 2, 12)
 end
 
 --------------------------------------------------------------
@@ -275,13 +349,15 @@ function enddrawloop()
     else
         winner = player2
     end
-    textlabels={"game over","wins!","score".." "..winner.score,"press button for menu"};
-    print(textlabels[1],hcenter(textlabels[1]),vcenter(textlabels[1])-12,rnd(3)+7)
-    spr(winner.sprite,hcenter(textlabels[2])-6,vcenter(textlabels[2]))
-    print(textlabels[2],hcenter(textlabels[2])+6,vcenter(textlabels[2]),rnd(3)+7)
-    print(textlabels[3],hcenter(textlabels[3]),vcenter(textlabels[3])+12,11)
-    print(textlabels[4],hcenter(textlabels[4]),vcenter(textlabels[3])+24,12)
+    print(textlabels['end'][1],hcenter(textlabels['end'][1]),vcenter(textlabels['end'][1])-12,rnd(3)+7)
+    spr(winner.sprite,hcenter(textlabels['end'][2])-6,vcenter(textlabels['end'][2]))
+    print(textlabels['end'][2],hcenter(textlabels['end'][2])+6,vcenter(textlabels['end'][2]),rnd(3)+7)
+    print(textlabels['end'][3]..winner.score,hcenter(textlabels['end'][3]..winner.score),vcenter(textlabels['end'][3]..winner.score)+12,11)
+    print(textlabels['end'][4],hcenter(textlabels['end'][4]),vcenter(textlabels['end'][3])+24,12)
     color(7) -- reset color to white
+    print(textlabels['game'][1], 2, 2, 9)
+    print(player1.score, 32, 2, 10)
+    print(player2.score, 62, 2, 12)
 end
 
 --------------------------------------------------------------
